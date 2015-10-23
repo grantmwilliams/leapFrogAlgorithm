@@ -1,30 +1,34 @@
 %% Leap Frog Algorithm
 clear;close all;clc;
-tic
 %% Initialization of Variables
 popSize = 20;           % Number of popluation members
 xbound = [-3, 3];       % X Bounds
 ybound = [-3, 3];       % Y Bounds
-genLimit = 100;         % Generation Limit
-[X,Y,Z] = peaks;
+genLimit = 150;         % Generation Limit
+fit = 1;                % 1 for peaks 2 for goldsteen
 plotting = 0;           % 1 for plot 0 for no plotting
-ensembles = 10;         % How many times to run algorithm
+confidence = .99;       % Confidence as a percentage
+top_percent = .01;      % Percentage we are looking for
+ensembles = 1;       % How many times to run algorithm
+%ensembles = ceil(log(1-confidence)/log(1-top_percent)); % Calc ensembles to nearest whole number
+
 best_values = zeros(ensembles,1);
 x_coords = zeros(ensembles,1);
 y_coords = zeros(ensembles,1);
 time_to_run = zeros(ensembles,1);
+
+
 %*************************************************************************%
 for i = 1:ensembles
+tic
 %% Randomly Place Players (Within Bounds of Problem)
 xy(:,1) = (xbound(2)-xbound(1)).*rand(popSize,1)+xbound(1);
 xy(:,2) = (ybound(2)-ybound(1)).*rand(popSize,1)+ybound(1);
 %*************************************************************************%
  
 %% Best Fitness of Initial Individuals
-% Needs to be vectorized..
-F =  3*(1-xy(:,1)).^2.*exp(-(xy(:,1).^2) - (xy(:,2)+1).^2) ... 
-   - 10*(xy(:,1)/5 - xy(:,1).^3 - xy(:,2).^5).*exp(-xy(:,1).^2-xy(:,2).^2) ... 
-   - 1/3*exp(-(xy(:,1)+1).^2 - xy(:,2).^2);
+% Vectorized Version of Fitness
+F =  vecFit(fit,xy);
     
 [best, bestIdx] = max(F); bestCoord = xy(bestIdx,:); % Best Value % Coords
 %*************************************************************************%
@@ -58,11 +62,12 @@ end
 %*************************************************************************%
  
 % Check for New Best
-F(worstIdx,1) = getFit(worstIdx,xy);
+F(worstIdx,1) = fitness(fit,worstIdx,xy);
 if (F(worstIdx,1) > best)
     best = F(worstIdx,1);
     bestIdx = worstIdx;
 end
+
 %*************************************************************************%
 end % Ends Generation Loops
 
@@ -81,5 +86,5 @@ y_coords = y_coords(ii);
 time_to_run = time_to_run(ii);
 disp(table(best_values,x_coords,y_coords,time_to_run));
 disp('-----------------------------------------------------------');
-fprintf('Best Value: %f     Total Time To Run: %f     Mean Time: %f\n',max(best_values),sum(time_to_run),mean(time_to_run));
+fprintf('After: %f runs:    Best Value: %f     Total Time To Run: %f     Mean Time: %f\n',ensembles,max(best_values),sum(time_to_run),mean(time_to_run));
 

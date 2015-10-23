@@ -9,17 +9,18 @@ S = 4;                                      % Tournament Size
 limit = 100;                                % Number of Generations
 best = -1e9;                                % Initialize Best
 F = zeros(limit,1);                         % Initialize Fitness
+fit = 1;                                    % 1 for peaks 2 for goldsteen
 variableRange = [-3,3];
 numberOfVariables = 2;
 [X,Y,Z] = peaks;
-plot = 1;                                   % 1 for plotting 0 for no plotting
+plot = 0;                                   % 1 for plotting 0 for no plotting
 %% Initialize Population
 Pop = round(rand(popSize,genome));
 
 %% Initial Fitness
 xy = decode(Pop);           % Convert to Binary
 xy = normalizeXY(xy,variableRange); % Normalize to x1 <= XY <= x2    
-initialFitness = getFitness(xy);    % Fitness function goes here
+initialFitness = vecFit(fit,xy);    % Fitness function goes here
 initialConditions = [initialFitness xy];
 %% Begin Main Algorithm
 tic
@@ -28,7 +29,7 @@ for Gen = 1:limit
     
     xy = decode(Pop);           % Convert to Binary
     xy = normalizeXY(xy,variableRange); % Normalize to x1 <= XY <= x2
-    F = getFitness(xy);                 %Fitness function goes here
+    F = vecFit(fit,xy);                 %Fitness function goes here
     
     [current,currentIdx] = max(F);
     
@@ -92,7 +93,7 @@ for Gen = 1:limit
 
 end % End main loop
 %% Final Fitness stuff
-finalFitness = getFitness(xy);    % Fitness function goes here
+finalFitness = vecFit(fit,xy);    % Fitness function goes here
 finalConditions = [finalFitness xy];
 
 %% Prints Best Stats
